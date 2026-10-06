@@ -42,42 +42,12 @@
   <script defer src="js/effects.js"></script>
   <script defer src="js/labs.js"></script>
   <script defer src="js/cards.js"></script>
-  <script defer src="js/sheets.js"></script>
   <script defer src="js/app.js"></script>
 </head>
 <body>
 
-  <!-- ═══════════ 로그인 화면 (항상 첫 화면) ═══════════ -->
-  <section id="login-screen" class="screen active" aria-label="로그인">
-    <div class="login-deco" aria-hidden="true">
-      <span>🌰</span><span>📈</span><span>🍂</span><span>✏️</span><span>🌰</span>
-    </div>
-    <div class="login-card">
-      <div class="mascot" aria-hidden="true">🐿️</div>
-      <h1>일차함수 탐험대</h1>
-      <p class="sub">중학교 2학년 · 일차함수와 그 그래프</p>
-      <form id="login-form" novalidate>
-        <label class="field">
-          <span>학교 이름</span>
-          <input id="login-school" type="text" placeholder="예: 홍산중학교" autocomplete="off" maxlength="30" required>
-        </label>
-        <label class="field">
-          <span>학번</span>
-          <input id="login-id" type="text" placeholder="예: 20101" inputmode="numeric" autocomplete="off" maxlength="6" required>
-        </label>
-        <p id="login-error" class="form-error" role="alert"></p>
-        <button class="btn primary big full" type="submit">탐험 시작하기 🌰</button>
-      </form>
-      <ol class="login-steps" aria-label="학습 순서">
-        <li>🌱 절편</li><li>⛰️ 기울기</li><li>🧩 함수식</li><li>✏️ 그래프</li><li class="wide">🏔️ 복합 문제 도전</li>
-      </ol>
-      <p class="login-rule">🧪 단계마다 실험실 · 📝 10문제씩 · 🌰 첫 시도에 맞히면 도토리 · 💡 틀리면 힌트와 재도전</p>
-      <p class="notice">※ 로그아웃하면 학습 기록과 도토리·칭찬도장이 모두 초기화돼요.</p>
-    </div>
-  </section>
-
   <!-- ═══════════ 학습 화면 ═══════════ -->
-  <section id="app-screen" class="screen" aria-label="학습">
+  <section id="app-screen" class="screen active" aria-label="학습">
     <header class="topbar">
       <div class="topbar-inner">
         <div class="brand"><span class="brand-ic" aria-hidden="true">🐿️</span><span class="brand-text">일차함수 탐험대</span></div>
@@ -97,12 +67,8 @@
         </div>
 
         <div class="user-area">
-          <div class="user-meta">
-            <span id="user-info" class="user-info"></span>
-            <span id="sync-status" class="sync" data-kind="off"><i></i><span class="sync-text">시트 미연결</span></span>
-          </div>
           <button type="button" class="icon-btn" id="sound-btn" aria-label="소리 끄기">🔊</button>
-          <button type="button" class="btn small ghost" id="logout-btn">로그아웃</button>
+          <button type="button" class="btn small ghost" id="reset-btn">🔄 기록 초기화</button>
         </div>
       </div>
       <nav id="stepper" class="stepper" aria-label="학습 단계"></nav>

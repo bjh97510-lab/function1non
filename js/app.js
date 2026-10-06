@@ -1,6 +1,6 @@
 /**
  * 일차함수 탐험대 — 메인 앱
- * - 상태는 메모리에만 보관합니다. 새로고침/로그아웃 시 항상 로그인 화면부터, 모든 기록이 초기화됩니다.
+ * - 상태는 메모리에만 보관합니다. 새로고침하거나 '기록 초기화' 버튼을 누르면 모든 기록이 초기화됩니다.
  * - 문제 규칙: 첫 시도에 맞히면 도토리 +1 / 틀리면 힌트와 함께 재도전 (재도전 정답은 도토리 없음)
  *              마지막 기회까지 틀리면 정답과 해설 팝업
  */
@@ -19,8 +19,6 @@
   const $ = (id) => document.getElementById(id);
 
   const initialState = () => ({
-    school: '',
-    studentId: '',
     acorns: 0,
     stamps: 0,
     firstCorrect: 0, // 첫 시도 정답 수 (= 지금까지 받은 도토리 수)
@@ -42,47 +40,25 @@
   // 헤더 표시는 도토리 애니메이션이 끝난 뒤 갱신하기 위해 별도로 보관
   const shown = { acorns: 0, stamps: 0 };
 
-  // ════════════════════════ 로그인 / 로그아웃 ════════════════════════
-  $('login-form').addEventListener('submit', (e) => {
-    e.preventDefault();
-    const school = $('login-school').value.trim();
-    const sid = $('login-id').value.trim();
-    const err = $('login-error');
-    if (!school) { err.textContent = '학교 이름을 입력해 주세요.'; $('login-school').focus(); return; }
-    if (!/^\d{4,6}$/.test(sid)) { err.textContent = '학번은 숫자 4~6자리로 입력해 주세요. (예: 20101)'; $('login-id').focus(); return; }
-    err.textContent = '';
-
-    Sound.unlock();
-    state = initialState();
-    state.school = school;
-    state.studentId = sid;
-    shown.acorns = 0;
-    shown.stamps = 0;
-
-    showScreen('app');
-    renderAll();
-    window.Sheets.send(state, 'login');
-    Toast.show(`👋 ${escapeHtml(school)} ${sid} 학생, 환영해요!`);
-  });
-
-  $('logout-btn').addEventListener('click', async () => {
+  // ════════════════════════ 기록 초기화 ════════════════════════
+  $('reset-btn').addEventListener('click', async () => {
     const ok = await Modal.show({
-      icon: '🚪',
-      title: '로그아웃할까요?',
-      html: '<p>로그아웃하면 <b>학습 진행 상황, 도토리, 칭찬도장이 모두 초기화</b>돼요.<br>다시 로그인하면 1단계부터 새로 시작해요.</p>',
+      icon: '🔄',
+      title: '기록을 초기화할까요?',
+      html: '<p>초기화하면 <b>학습 진행 상황, 도토리, 칭찬도장이 모두 사라지고</b><br>1단계부터 새로 시작해요.</p>',
       buttons: [
         { label: '취소', value: false, cls: 'ghost' },
-        { label: '로그아웃', value: true, cls: 'danger' },
+        { label: '초기화', value: true, cls: 'danger' },
       ],
     });
     if (!ok) return;
-    window.Sheets.send(state, 'logout');
     destroyBoards();
     state = initialState();
-    $('login-form').reset();
-    $('content').innerHTML = '';
-    showScreen('login');
-    $('login-school').focus();
+    shown.acorns = 0;
+    shown.stamps = 0;
+    renderAll();
+    window.scrollTo(0, 0);
+    Toast.show('🔄 기록을 초기화했어요. 1단계부터 다시 시작해요!');
   });
 
   $('sound-btn').addEventListener('click', () => {
@@ -94,12 +70,6 @@
   $('acorn-badge').addEventListener('click', showRewardInfo);
   $('stamp-badge').addEventListener('click', showRewardInfo);
 
-  function showScreen(name) {
-    $('login-screen').classList.toggle('active', name === 'login');
-    $('app-screen').classList.toggle('active', name === 'app');
-    window.scrollTo(0, 0);
-  }
-
   // ════════════════════════ 렌더링 ════════════════════════
   function renderAll() {
     renderHeader();
@@ -108,7 +78,6 @@
   }
 
   function renderHeader() {
-    $('user-info').textContent = `${state.school} · ${state.studentId}`;
     $('acorn-count').textContent = shown.acorns;
     $('acorn-bar').style.width = `${(shown.acorns / PER_STAMP) * 100}%`;
     $('stamp-count').textContent = shown.stamps;
@@ -480,7 +449,6 @@
     if (stepDone && !state.doneSteps.includes(step.id)) state.doneSteps.push(step.id);
 
     // ── 구글 시트 기록 ──
-    window.Sheets.send(state, stepDone ? 'step_complete' : 'answer');
 
     // ── 화면 갱신 ──
     $('q-actions').innerHTML = `<button type="button" class="btn primary" id="next-btn">${stepDone ? '단계 결과 보기 🎉' : '다음 문제 →'}</button>`;
@@ -572,7 +540,6 @@
     } else {
       Sound.wrong();
     }
-    window.Sheets.send(state, 'card');
   }
 
   function correctAnswerHTML(q) {
@@ -656,7 +623,7 @@
       icon: '🏆',
       title: '일차함수 탐험 완료!',
       html: `
-        <p><b>${escapeHtml(state.school)} ${state.studentId}</b> 학생, ${LAST_STEP}단계를 모두 마쳤어요!</p>
+        <p>${LAST_STEP}단계를 모두 마쳤어요! 정말 대단해요 🎉</p>
         <div class="final-stats">
           <div><span class="fs-num">${state.firstCorrect}<small>/${TOTAL_Q}</small></span><span class="fs-label">한 번에 정답</span></div>
           <div><span class="fs-num">${state.retryCorrect}</span><span class="fs-label">재도전 성공</span></div>
@@ -665,7 +632,7 @@
         </div>
         <p class="small-note">🃏 카드 뒤집기 퀴즈 정답 <b>${state.cardCorrect}</b> / ${CARD_TOTAL}</p>
         <div class="stamp-board">${stampBoardHTML()}</div>
-        <p class="small-note">학습 결과는 선생님께 자동으로 전달돼요 📮</p>`,
+`,
       buttons: [{ label: '확인', value: true, cls: 'primary' }],
     });
   }
@@ -716,4 +683,7 @@
   function escapeHtml(s) {
     return String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   }
+
+  // ════════════════════════ 시작 ════════════════════════
+  renderAll();
 })();
