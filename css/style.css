@@ -566,7 +566,7 @@ button { font: inherit; color: inherit; }
   .rewards { margin-left: 0; gap: 6px; }
   .user-area { margin-left: auto; gap: 6px; }
   .icon-btn { width: 32px; height: 32px; font-size: 14px; }
-  #reset-btn { padding: 6px 10px; font-size: 12px; }
+  #reset-record-btn { padding: 6px 10px; font-size: 12px; }
   .stepper { padding: 2px 12px 10px; }
   .step-btn { padding: 4px; flex-direction: column; gap: 2px; }
   .step-btn.current { padding: 4px 8px; }

@@ -41,7 +41,7 @@
   const shown = { acorns: 0, stamps: 0 };
 
   // ════════════════════════ 기록 초기화 ════════════════════════
-  $('reset-btn').addEventListener('click', async () => {
+  $('reset-record-btn').addEventListener('click', async () => {
     const ok = await Modal.show({
       icon: '🔄',
       title: '기록을 초기화할까요?',
